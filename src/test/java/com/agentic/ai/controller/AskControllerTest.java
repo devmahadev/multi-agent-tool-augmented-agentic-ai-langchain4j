@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = FlightAiController.class)
+@WebMvcTest(controllers = AirportAiController.class)
 @Import(GlobalExceptionHandler.class)
 class AskControllerTest {
 

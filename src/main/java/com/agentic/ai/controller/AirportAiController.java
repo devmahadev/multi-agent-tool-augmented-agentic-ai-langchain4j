@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/assistant")
-public class FlightAiController {
+public class AirportAiController {
     private final FlightAdvisorAssistant assistant;
 
-    public FlightAiController(FlightAdvisorAssistant assistant) {
+    public AirportAiController(FlightAdvisorAssistant assistant) {
         this.assistant = assistant;
     }
 
