@@ -9,9 +9,14 @@ Each agent uses LangChain4j @Tool methods to fetch live/operational data via a G
 
 ![Application-UI](/src/main/resources/Schiphol-Agent-App.jpg "Application Home Page")
 
-### **Data Ingestion to PGVectorDB**
-![Multi-Agents Happy Flow](/src/main/resources/PlantUMLDiagrams/images/AgentsHappyFLowWorkflow.png "Agents Happy Flow")
+### **Sequence and Activity Diagrams**
+![Multi-Agents Happy Flow](/src/main/resources/PlantUMLDiagrams/images/RouterClassifier_Decision_Flow.png "Router Classifier Flow")
 ![Multi-Agents Component View](/src/main/resources/PlantUMLDiagrams/images/ComponentDiagram-Multi_Gate_Agents_Coordination.png "Component View")
+**Is_12A_already_boarded ?**
+![Multi-Agents Component View](/src/main/resources/PlantUMLDiagrams/images/Seat_Lookup__BOARDING____Is_12A_already_boarded.png "Seat Lookup Flow ")
+**Move Flight **HV6734-2025-11-03** from **D24** to **D26** at 10:15, reason **OPS_STAFFING**.**
+![Multi-Agents Component View](/src/main/resources/PlantUMLDiagrams/images/Confirm_Updated_Gate__GATE_CHANGE-1A.png "Update Gate Change ")
+![Multi-Agents Component View](/src/main/resources/PlantUMLDiagrams/images/Confirm_Updated_Gate__GATE_CHANGE-1B.png "Confirm Gate Change  ")
 **Key Components**
 * GateAgentsController – Single HTTP entrypoint (POST /api/gate-agents/ask).
 * GateAgentsOrchestrator – Calls RouterClassifier then dispatches to the selected agent.
