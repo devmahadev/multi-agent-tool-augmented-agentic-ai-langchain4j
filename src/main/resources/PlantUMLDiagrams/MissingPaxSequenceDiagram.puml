@@ -1,0 +1,48 @@
+@startuml
+title Missing Pax: queue check then boarding follow-up
+
+actor User
+participant "GateAgentsController" as C
+participant "GateAgentsOrchestrator" as O
+participant "RouterClassifier" as R
+participant "SecurityAgent" as SecA
+participant "SecurityToolsService" as SecT
+participant "GateOpsClient" as G
+participant "LocalGateOpsStore" as S
+participant "BoardingAgent" as BA
+participant "BoardingToolsService" as BT
+note over User, Bob #FFAAAA:   Diagram by Deepak Hirenwal.
+
+== Step 1: Security queue ==
+User -> C : POST /api/gate-agents/ask\n{"question":"We're missing three pax. What's the queue at Checkpoint C before we call final?"}
+C -> O : answer(q1)
+O -> R : classify(q1)
+R --> O : "SECURITY"
+O -> SecA : answer(q1)
+SecA -> SecT : summarizeQueue("C")
+SecT -> G : getSecurityQueue("C")
+G -> S : getSecurityQueue("C")
+S --> G : SecurityQueue(14 min, obs …)
+G --> SecT : SecurityQueue
+SecT --> SecA : "Checkpoint C — ~14 min …"
+SecA --> O : string
+O --> C : AskResponse(answer1)
+C --> User : 200 OK
+
+== Step 2: Boarding follow-up ==
+User -> C : POST /api/gate-agents/ask\n{"question":"How many boarded and any groups open for HV6734-2025-11-03?"}
+C -> O : answer(q2)
+O -> R : classify(q2)
+R --> O : "BOARDING"
+O -> BA : answer(q2)
+BA -> BT : summarizeBoarding(fId)
+BT -> G : getBoardingProgress(fId)
+G -> S : getLatestBoarding(fId)
+S --> G : BoardingProgress(86/180, Main Boarding, groups …)
+G --> BT : BoardingProgress
+BT --> BA : "HV6734-2025-11-03 — 86/180 boarded …"
+BA --> O : string
+O --> C : AskResponse(answer2)
+C --> User : 200 OK
+
+@enduml

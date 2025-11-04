@@ -1,0 +1,29 @@
+@startuml
+title Seat Lookup (BOARDING): "Is 12A already boarded?"
+
+actor User
+participant "GateAgentsController" as C
+participant "GateAgentsOrchestrator" as O
+participant "RouterClassifier" as R
+participant "BoardingAgent" as A
+participant "BoardingToolsService" as T
+participant "GateOpsClient" as G
+participant "LocalGateOpsStore" as S
+note over User, Bob #FFAAAA:   Diagram by Deepak Hirenwal.
+
+User -> C : POST /api/gate-agents/ask\n{"question":"Is 12A already boarded on HV6734-2025-11-03?"}
+C -> O : answer(q)
+O -> R : classify(q)
+R --> O : "BOARDING"
+O -> A : answer(q)
+A -> T : seatStatusByFlightAndSeat(fId,"12A")
+T -> G : getPassengerBySeat(fId,"12A")
+G -> S : getPassengerBySeat(fId,"12A")
+S --> G : PassengerLite("12A", checkedIn=true, boarded=false)
+G --> T : PassengerLite(...)
+T --> A : "Seat 12A — checked-in ✓, boarded ✗."
+A --> O : string
+O --> C : AskResponse(answer)
+C --> User : 200 OK + JSON
+
+@enduml

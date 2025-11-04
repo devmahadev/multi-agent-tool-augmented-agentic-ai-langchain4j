@@ -1,6 +1,6 @@
 package com.agentic.ai.controller;
 
-import com.agentic.ai.assistant.FlightAdvisorAssistant;
+import com.agentic.ai.assistant.FlightAgent;
 import com.agentic.ai.exception.GlobalExceptionHandler;
 import com.agentic.ai.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = AirportAiController.class)
+@WebMvcTest(controllers = SchipholFlightController.class)
 @Import(GlobalExceptionHandler.class)
 class AskControllerTest {
 
@@ -31,7 +31,7 @@ class AskControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private FlightAdvisorAssistant assistant;
+    private FlightAgent assistant;
 
     private static final Flight flight =
             new Flight(
@@ -67,7 +67,7 @@ class AskControllerTest {
 
         AskRequest req = new AskRequest("When does HV5666 arrive?");
 
-        mvc.perform(post("/api/assistant/ask")
+        mvc.perform(post("/api/flight/assistant/ask")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
@@ -80,7 +80,7 @@ class AskControllerTest {
     void ask_blankQuestion_returns_BadRequest() throws Exception {
         AskRequest req = new AskRequest("  ");
 
-        mvc.perform(post("/api/assistant/ask")
+        mvc.perform(post("/api/flight/assistant/ask")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())

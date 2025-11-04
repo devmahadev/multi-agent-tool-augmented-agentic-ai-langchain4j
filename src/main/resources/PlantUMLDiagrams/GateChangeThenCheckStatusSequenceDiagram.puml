@@ -1,0 +1,28 @@
+@startuml
+title 1A-Gate Change Request (GATE_CHANGE)
+
+actor User
+participant "GateAgentsController" as C
+participant "GateAgentsOrchestrator" as O
+participant "RouterClassifier" as R
+participant "GateChangeAgent" as A
+participant "GateChangeToolsService" as T
+participant "GateOpsClient" as G
+participant "LocalGateOpsStore" as S
+note over User, Bob #FFAAAA:   Diagram by Deepak Hirenwal.
+User -> C : POST /api/gate-agents/ask\n{"question":"Move HV6734-2025-11-03 from D24 to D26 at 10:15, reason OPS_STAFFING."}
+C -> O : answer(q)
+O -> R : classify(q)
+R --> O : "GATE_CHANGE"
+O -> A : answer(q)
+A -> T : requestGateChange(fId,"D24","D26",iso,"OPS_STAFFING","agent")
+T -> G : requestGateChange(request)
+G -> S : requestGateChange(request)\n(update in-memory gate status)
+S --> G : GateChangeResult(#GC-...)
+G --> T : GateChangeResult
+T --> A : "Gate change accepted: #GC-... D24→D26 eff 10:15 ..."
+A --> O : string
+O --> C : AskResponse(answer)
+C --> User : 200 OK
+
+@enduml

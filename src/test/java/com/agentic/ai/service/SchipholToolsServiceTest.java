@@ -2,6 +2,8 @@ package com.agentic.ai.service;
 
 import com.agentic.ai.exception.GlobalExceptionHandler;
 import com.agentic.ai.model.*;
+import com.agentic.ai.service.client.SchipholClient;
+import com.agentic.ai.service.tools.SchipholToolsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @Import(GlobalExceptionHandler.class)
-class SchipholInformationServiceTest {
+class SchipholToolsServiceTest {
 
     private SchipholClient client;
-    private SchipholInformationService service;
+    private SchipholToolsService service;
 
     @Resource
     MockMvc mvc;
@@ -58,7 +60,7 @@ class SchipholInformationServiceTest {
     @BeforeEach
     void setUp() {
         client = mock(SchipholClient.class);
-        service = new SchipholInformationService(client);
+        service = new SchipholToolsService(client);
     }
 
     @Test

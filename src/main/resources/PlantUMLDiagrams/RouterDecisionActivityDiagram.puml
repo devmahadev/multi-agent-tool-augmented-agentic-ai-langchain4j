@@ -1,0 +1,19 @@
+@startuml
+title RouterClassifier Decision Flow
+
+start
+note right: Diagram by Deepak Hirenwal
+:Receive question (text);
+:Normalize text (lowercase, trim);
+
+if (Mentions "gate" / "stand" / "reassign") then (yes)
+  :Emit "GATE_CHANGE";
+elseif (Mentions "board" / "group" / "seat") then (yes)
+  :Emit "BOARDING";
+elseif (Mentions "queue" / "checkpoint" / "security") then (yes)
+  :Emit "SECURITY";
+else (ambiguous)
+  :Emit default "BOARDING";
+endif
+stop
+@enduml

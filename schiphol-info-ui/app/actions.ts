@@ -3,7 +3,7 @@
 import { marked } from 'marked';
 
 export async function sendMessage(userMessage: string): Promise<string> {
-  const response = await fetch("http://localhost:8080/api/assistant/ask", {
+  const response = await fetch("http://localhost:8080/api/gate-agents/ask", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

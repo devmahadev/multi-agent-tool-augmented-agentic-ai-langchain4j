@@ -1,0 +1,73 @@
+@startuml
+actor GateOpsClient
+
+participant GateAgentSpringController
+participant GateAgentController
+participant GateAgentOrchestration
+participant FlightStatusService
+participant GateChangeService
+participant PassengerManifestService
+participant BoardingService
+participant NotificationService
+participant AuditService
+note over GateOpsClient, Bob #FFAAAA:   Diagram by Deepak Hirenwal.
+== Check Flight Status ==
+GateOpsClient -> GateAgentSpringController : GET /flight/status?flightId=HV6734
+GateAgentSpringController -> GateAgentController : getFlightStatus(flightId)
+GateAgentController -> GateAgentOrchestration : fetchFlightStatus(flightId)
+GateAgentOrchestration -> FlightStatusService : getStatus(flightId)
+FlightStatusService --> GateAgentOrchestration : statusData
+GateAgentOrchestration --> GateAgentController : statusData
+GateAgentController --> GateAgentSpringController : statusData
+GateAgentSpringController --> GateOpsClient : 200 OK + statusData
+
+== Gate Change Notification ==
+GateOpsClient -> GateAgentSpringController : POST /gate/change?flightId=HV6734&newGate=G5
+GateAgentSpringController -> GateAgentController : changeGate(flightId, newGate)
+GateAgentController -> GateAgentOrchestration : updateGateAssignment(flightId, newGate)
+GateAgentOrchestration -> GateChangeService : assignGate(flightId, newGate)
+GateChangeService --> GateAgentOrchestration : gateUpdated
+GateAgentOrchestration -> NotificationService : notifyGateChange(flightId, newGate)
+NotificationService --> GateAgentOrchestration : notificationSent
+GateAgentOrchestration -> AuditService : logEvent("Gate changed to G5")
+AuditService --> GateAgentOrchestration : logged
+GateAgentOrchestration --> GateAgentController : gateUpdated
+GateAgentController --> GateAgentSpringController : gateUpdated
+GateAgentSpringController --> GateOpsClient : 200 OK + gateUpdated
+
+== Retrieve Passenger Manifest ==
+GateOpsClient -> GateAgentSpringController : GET /manifest?flightId=HV6734
+GateAgentSpringController -> GateAgentController : getPassengerManifest(flightId)
+GateAgentController -> GateAgentOrchestration : fetchManifest(flightId)
+GateAgentOrchestration -> PassengerManifestService : getManifest(flightId)
+PassengerManifestService --> GateAgentOrchestration : manifestData
+GateAgentOrchestration --> GateAgentController : manifestData
+GateAgentController --> GateAgentSpringController : manifestData
+GateAgentSpringController --> GateOpsClient : 200 OK + manifestData
+== Start Boarding ==
+GateOpsClient -> GateAgentSpringController : POST /boarding/start?flightId=HV6734
+GateAgentSpringController -> GateAgentController : startBoarding(flightId)
+GateAgentController -> GateAgentOrchestration : initiateBoarding(flightId)
+GateAgentOrchestration -> BoardingService : startBoarding(flightId)
+BoardingService --> GateAgentOrchestration : boardingStarted
+GateAgentOrchestration -> NotificationService : notifyBoardingStarted(flightId)
+NotificationService --> GateAgentOrchestration : notificationSent
+GateAgentOrchestration -> AuditService : logEvent("Boarding started")
+AuditService --> GateAgentOrchestration : logged
+GateAgentOrchestration --> GateAgentController : boardingStarted
+GateAgentController --> GateAgentSpringController : boardingStarted
+GateAgentSpringController --> GateOpsClient : 200 OK + boardingStarted
+
+== Check Missing Pax ==
+GateOpsClient -> GateAgentSpringController : GET /boarding/missing-pax?flightId=HV6734
+GateAgentSpringController -> GateAgentController : checkMissingPax(flightId)
+GateAgentController -> GateAgentOrchestration : getMissingPax(flightId)
+GateAgentOrchestration -> BoardingService : getBoardedPassengers(flightId)
+GateAgentOrchestration -> PassengerManifestService : getManifest(flightId)
+GateAgentOrchestration -> GateAgentOrchestration : compare(manifest, boarded)
+GateAgentOrchestration -> NotificationService : alertMissingPax(list)
+NotificationService --> GateAgentOrchestration : alertSent
+GateAgentOrchestration --> GateAgentController : missingPaxList
+GateAgentController --> GateAgentSpringController : missingPaxList
+GateAgentSpringController --> GateOpsClient : 200 OK + missingPaxList
+@enduml

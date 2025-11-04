@@ -1,6 +1,6 @@
 package com.agentic.ai.controller;
 
-import com.agentic.ai.assistant.FlightAdvisorAssistant;
+import com.agentic.ai.assistant.FlightAgent;
 import com.agentic.ai.model.AskRequest;
 import com.agentic.ai.model.AskResponse;
 import jakarta.validation.Valid;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
  * Request validation is handled by the DTO, and any errors are managed by GlobalExceptionHandler.
  */
 @RestController
-@RequestMapping("/api/assistant")
-public class AirportAiController {
-    private final FlightAdvisorAssistant assistant;
+@RequestMapping("/api/flight/assistant")
+public class SchipholFlightController {
+    private final FlightAgent assistant;
 
-    public AirportAiController(FlightAdvisorAssistant assistant) {
+    public SchipholFlightController(FlightAgent assistant) {
         this.assistant = assistant;
     }
 

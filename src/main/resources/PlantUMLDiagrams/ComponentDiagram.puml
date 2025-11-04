@@ -1,0 +1,74 @@
+@startuml
+title Multi Gate Agents Coordination : Component Overview
+
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<svc>> #F2F7FF
+  BackgroundColor<<agent>> #F9FFF1
+  BackgroundColor<<router>> #FFF7E6
+  BackgroundColor<<tool>> #FDF2FF
+  BackgroundColor<<client>> #F2FFFA
+  BackgroundColor<<infra>> #FFF
+  BorderColor #8ea8c3
+}
+actor User as user
+note right of user: Diagram by Deepak Hirenwal.
+
+rectangle "Spring Boot Web" <<svc>> {
+  [GateAgentsController] as controller
+  [GateAgentsOrchestrator] as orchestrator
+}
+
+rectangle "Router (LLM)" <<router>> {
+  [RouterClassifier\n(AiService)] as router
+}
+
+rectangle "Agents (LLM-driven)" <<agent>> {
+  [BoardingAgent\n(AiService)] as boarding
+  [GateChangeAgent\n(AiService)] as gateChange
+  [SecurityAgent\n(AiService)] as security
+}
+
+rectangle "Tooling (LangChain4j @Tool)" <<tool>> {
+  [BoardingToolsService] as boardingTools
+  [GateChangeToolsService] as gateTools
+  [SecurityToolsService] as securityTools
+}
+
+rectangle "Ops Data Access" <<client>> {
+  [GateOpsClient\n(interface)] as clientIfc
+  [GateOpsClientLocal\n(in-process)] as clientLocal
+  [GateOpsClientRest\n(RestTemplate)] as clientRest
+  [GateOpsClientRepository\n(JPA/pgvector)] as clientRepo
+}
+
+rectangle "Local Store / DB / External" <<infra>> {
+  [LocalGateOpsStore\n(in-memory)] as store
+  [PostgreSQL + pgvector] as pg
+  [External Schiphol API] as api
+}
+
+user --> controller : POST /api/gate-agents/ask
+controller --> orchestrator : AskRequest(question)
+orchestrator --> router : classify(question) -> enum
+orchestrator --> boarding : answer(question)\n(if BOARDING)
+orchestrator --> gateChange : answer(question)\n(if GATE_CHANGE)
+orchestrator --> security : answer(question)\n(if SECURITY)
+
+boarding --> boardingTools : choose @Tool(s)
+gateChange --> gateTools : choose @Tool(s)
+security --> securityTools : choose @Tool(s)
+
+boardingTools --> clientIfc
+gateTools --> clientIfc
+securityTools --> clientIfc
+
+clientIfc ..> clientLocal : @Primary (dev/test)
+clientIfc ..> clientRest : profile=rest
+clientIfc ..> clientRepo : profile=db
+
+clientLocal --> store
+clientRest --> api
+clientRepo --> pg
+
+@enduml

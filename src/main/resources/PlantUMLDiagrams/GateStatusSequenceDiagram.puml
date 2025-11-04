@@ -1,0 +1,30 @@
+@startuml
+title Gate Status (GATE_CHANGE)
+
+actor User
+participant "GateAgentsController" as C
+participant "GateAgentsOrchestrator" as O
+participant "RouterClassifier" as R
+participant "GateChangeAgent" as A
+participant "GateChangeToolsService" as T
+participant "GateOpsClient" as G
+participant "LocalGateOpsStore" as S
+note over User, Bob #FFAAAA:   Diagram by Deepak Hirenwal.
+
+User -> C : POST /api/gate-agents/ask\n{"question":"Confirm gate for HV6734-2025-11-03."}
+C -> O : answer(q)
+O -> R : classify(q)
+R --> O : "GATE_CHANGE"
+O -> A : answer(q)
+A -> T : summarizeGateStatus(flightId)
+T -> G : getGateStatus(flightId)
+G -> S : getGateStatus(flightId)
+S --> G : GateStatus(D24, Gate Open, eff …)
+G --> T : GateStatus
+T --> A : "HV6734-2025-11-03 — Gate D24 …"
+A --> O : string (1–2 lines)
+O --> C : AskResponse(answer)
+C --> User : 200 OK + JSON
+
+@enduml
+``
